@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chaining of the Block</title>
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Chaining of the Block</h1>
+      <p class="muted">Simple Truffle + JavaScript DApp starter</p>
+
+      <section class="card">
+        <button id="connectBtn">Connect Wallet</button>
+        <p id="account" class="muted">Account: not connected</p>
+      </section>
+
+      <section class="card">
+        <label for="valueInput">Value to store</label>
+        <input id="valueInput" type="number" min="0" value="0" />
+        <button id="setBtn">Set Value</button>
+        <button id="getBtn">Get Value</button>
+        <p id="currentValue">Current value: -</p>
+      </section>
+
+      <p id="status" class="status">Status: waiting for wallet connection</p>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+    <script src="./js/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,32 @@
+{
+  "name": "chaining_of_the_block",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "devchain": "ganache --deterministic",
+    "compile": "truffle compile",
+    "migrate": "truffle migrate --network development",
+    "test": "truffle test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rice-11/Blockchain-Assignment.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Rice-11/Blockchain-Assignment/issues"
+  },
+  "homepage": "https://github.com/Rice-11/Blockchain-Assignment#readme",
+  "devDependencies": {
+    "ganache": "^7.9.2",
+    "truffle": "^5.11.5"
+  },
+  "dependencies": {
+    "@truffle/contract": "^4.6.31",
+    "web3": "^4.16.0"
+  }
+}
