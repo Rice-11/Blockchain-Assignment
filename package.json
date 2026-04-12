@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "npx serve src",
     "devchain": "ganache --deterministic",
     "compile": "truffle compile",
     "migrate": "truffle migrate --network development",

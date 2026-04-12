@@ -1,109 +1,88 @@
 (() => {
-  const state = {
-    web3: null,
-    account: null,
-    contract: null,
-  };
+  const state = { web3: null, account: null, contract: null };
 
-  const statusElement = document.getElementById("status");
-  const accountElement = document.getElementById("account");
-  const currentValueElement = document.getElementById("currentValue");
-  const valueInput = document.getElementById("valueInput");
+  const $ = (id) => document.getElementById(id);
+  const statusEl      = $("status");
+  const statusDot     = $("statusDot");
+  const accountEl     = $("account");
+  const accountBadge  = $("accountBadge");
+  const networkBadge  = $("networkBadge");
+  const valueDisplay  = $("valueDisplay");
+  const valueInput    = $("valueInput");
 
-  function setStatus(message) {
-    statusElement.textContent = `Status: ${message}`;
+  function setStatus(msg, state = "idle") {
+    statusEl.textContent = msg;
+    statusDot.className = "statusbar-dot";
+    if (state === "ok")   statusDot.classList.add("ok");
+    if (state === "busy") statusDot.classList.add("busy");
+    if (state === "err")  statusDot.classList.add("err");
   }
 
   async function connectWallet() {
     if (!window.ethereum) {
-      throw new Error("MetaMask is not available in this browser.");
+      throw new Error("MetaMask not found — install it and reload.");
     }
-
     state.web3 = new window.Web3(window.ethereum);
     const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-
-    if (!accounts || accounts.length === 0) {
-      throw new Error("No wallet account was returned.");
-    }
+    if (!accounts || accounts.length === 0) throw new Error("No account returned.");
 
     state.account = accounts[0];
-    accountElement.textContent = `Account: ${state.account}`;
-    setStatus("wallet connected");
+    const short = `${state.account.slice(0, 6)}…${state.account.slice(-4)}`;
+    accountEl.textContent = state.account;
+    accountBadge.textContent = short;
+    accountBadge.className = "badge badge--online";
+
+    const netId = await state.web3.eth.net.getId();
+    networkBadge.textContent = `net:${netId}`;
+    networkBadge.className = "badge badge--online";
   }
 
   async function loadContract() {
-    if (!state.web3) {
-      throw new Error("Connect wallet first.");
-    }
-
-    const artifactResponse = await fetch("../build/contracts/Main.json");
-    if (!artifactResponse.ok) {
-      throw new Error("Could not load build/contracts/Main.json. Run `npm run compile` and `npm run migrate`.");
-    }
-
-    const artifact = await artifactResponse.json();
-    const networkId = await state.web3.eth.net.getId();
-    const deployment = artifact.networks[networkId];
-
-    if (!deployment) {
-      throw new Error(`Main is not deployed on network ${networkId}. Run \`npm run migrate\`.`);
-    }
-
+    if (!state.web3) throw new Error("Connect wallet first.");
+    const res = await fetch("../build/contracts/Main.json");
+    if (!res.ok) throw new Error("Main.json not found — run: npm run compile && npm run migrate");
+    const artifact = await res.json();
+    const netId = await state.web3.eth.net.getId();
+    const deployment = artifact.networks[netId];
+    if (!deployment) throw new Error(`No deployment on network ${netId} — run: npm run migrate`);
     state.contract = new state.web3.eth.Contract(artifact.abi, deployment.address);
   }
 
   async function getValue() {
-    if (!state.contract) {
-      await loadContract();
-    }
-
+    if (!state.contract) await loadContract();
     const value = await state.contract.methods.getValue().call();
-    currentValueElement.textContent = `Current value: ${value}`;
-    setStatus("value fetched");
+    valueDisplay.textContent = value;
+    setStatus("value fetched", "ok");
   }
 
   async function setValue() {
-    if (!state.account) {
-      throw new Error("Connect wallet first.");
-    }
-    if (!state.contract) {
-      await loadContract();
-    }
-
-    const nextValue = Number(valueInput.value);
-    if (!Number.isInteger(nextValue) || nextValue < 0) {
-      throw new Error("Please enter a valid non-negative integer.");
-    }
-
-    setStatus("sending transaction...");
-    await state.contract.methods.setValue(nextValue).send({ from: state.account });
+    if (!state.account) throw new Error("Connect wallet first.");
+    if (!state.contract) await loadContract();
+    const next = Number(valueInput.value);
+    if (!Number.isInteger(next) || next < 0) throw new Error("Enter a valid non-negative integer.");
+    setStatus("sending transaction…", "busy");
+    await state.contract.methods.setValue(next).send({ from: state.account });
     await getValue();
-    setStatus("transaction confirmed");
+    setStatus("transaction confirmed", "ok");
   }
 
-  document.getElementById("connectBtn").addEventListener("click", async () => {
+  $("connectBtn").addEventListener("click", async () => {
     try {
+      setStatus("connecting…", "busy");
       await connectWallet();
       await loadContract();
       await getValue();
-    } catch (error) {
-      setStatus(error.message);
-    }
+      setStatus("connected", "ok");
+    } catch (e) { setStatus(e.message, "err"); }
   });
 
-  document.getElementById("setBtn").addEventListener("click", async () => {
-    try {
-      await setValue();
-    } catch (error) {
-      setStatus(error.message);
-    }
+  $("setBtn").addEventListener("click", async () => {
+    try { await setValue(); }
+    catch (e) { setStatus(e.message, "err"); }
   });
 
-  document.getElementById("getBtn").addEventListener("click", async () => {
-    try {
-      await getValue();
-    } catch (error) {
-      setStatus(error.message);
-    }
+  $("getBtn").addEventListener("click", async () => {
+    try { await getValue(); }
+    catch (e) { setStatus(e.message, "err"); }
   });
 })();

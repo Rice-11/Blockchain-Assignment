@@ -3,28 +3,57 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chaining of the Block</title>
+    <title>Chaining of the Block — Dev</title>
     <link rel="stylesheet" href="./css/style.css" />
   </head>
   <body>
+    <header class="topbar">
+      <span class="topbar-logo">&#9632; chaining-of-the-block</span>
+      <span id="networkBadge" class="badge badge--offline">not connected</span>
+    </header>
+
     <main class="container">
-      <h1>Chaining of the Block</h1>
-      <p class="muted">Simple Truffle + JavaScript DApp starter</p>
 
-      <section class="card">
-        <button id="connectBtn">Connect Wallet</button>
-        <p id="account" class="muted">Account: not connected</p>
+      <!-- Setup guide -->
+      <section class="setup-panel">
+        <p class="setup-title">Dev setup</p>
+        <ol class="setup-steps">
+          <li><code>npm run devchain</code> — start local Ganache chain</li>
+          <li><code>npm run compile</code> — compile contracts</li>
+          <li><code>npm run migrate</code> — deploy to local network</li>
+          <li>Connect MetaMask to <strong>localhost:8545</strong>, then click Connect below</li>
+        </ol>
       </section>
 
+      <!-- Wallet -->
       <section class="card">
-        <label for="valueInput">Value to store</label>
-        <input id="valueInput" type="number" min="0" value="0" />
-        <button id="setBtn">Set Value</button>
-        <button id="getBtn">Get Value</button>
-        <p id="currentValue">Current value: -</p>
+        <div class="card-header">
+          <span class="card-label">Wallet</span>
+          <span id="accountBadge" class="badge badge--offline">disconnected</span>
+        </div>
+        <button id="connectBtn" class="btn">Connect MetaMask</button>
+        <p id="account" class="mono dimmed">—</p>
       </section>
 
-      <p id="status" class="status">Status: waiting for wallet connection</p>
+      <!-- Contract interaction -->
+      <section class="card">
+        <div class="card-header">
+          <span class="card-label">SimpleStorage contract</span>
+        </div>
+        <div class="row">
+          <input id="valueInput" type="number" min="0" value="0" placeholder="value" />
+          <button id="setBtn" class="btn">Set</button>
+          <button id="getBtn" class="btn btn--ghost">Get</button>
+        </div>
+        <p id="currentValue" class="mono">stored value: <span id="valueDisplay">—</span></p>
+      </section>
+
+      <!-- Status bar -->
+      <div class="statusbar">
+        <span class="statusbar-dot" id="statusDot"></span>
+        <span id="status">waiting for wallet connection</span>
+      </div>
+
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
