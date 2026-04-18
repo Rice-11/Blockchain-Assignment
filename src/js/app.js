@@ -8,7 +8,9 @@
   const accountBadge  = $("accountBadge");
   const networkBadge  = $("networkBadge");
   const valueDisplay  = $("valueDisplay");
+  const valueHex      = $("valueHex");
   const valueInput    = $("valueInput");
+  const valueReadout  = valueDisplay.closest(".value-readout");
 
   function setStatus(msg, state = "idle") {
     statusEl.textContent = msg;
@@ -29,12 +31,16 @@
     state.account = accounts[0];
     const short = `${state.account.slice(0, 6)}…${state.account.slice(-4)}`;
     accountEl.textContent = state.account;
+    accountEl.classList.add("connected");
     accountBadge.textContent = short;
     accountBadge.className = "badge badge--online";
 
     const netId = await state.web3.eth.net.getId();
     networkBadge.textContent = `net:${netId}`;
     networkBadge.className = "badge badge--online";
+
+    $("chainNode1").classList.add("active");
+    $("chainNode2").classList.add("active");
   }
 
   async function loadContract() {
@@ -51,7 +57,20 @@
   async function getValue() {
     if (!state.contract) await loadContract();
     const value = await state.contract.methods.getValue().call();
+
+    valueDisplay.classList.remove("glitch");
+    void valueDisplay.offsetWidth;
+    valueDisplay.classList.add("glitch");
+    setTimeout(() => valueDisplay.classList.remove("glitch"), 450);
+
     valueDisplay.textContent = value;
+    valueDisplay.classList.add("has-value");
+
+    const num = parseInt(value);
+    valueHex.textContent = "0x" + num.toString(16).toUpperCase().padStart(4, "0");
+    valueHex.classList.add("has-value");
+    valueReadout.classList.add("has-value");
+
     setStatus("value fetched", "ok");
   }
 
@@ -65,6 +84,20 @@
     await getValue();
     setStatus("transaction confirmed", "ok");
   }
+
+  // Theme toggle
+  (function () {
+    const btn = $("themeToggle");
+    function applyTheme(theme) {
+      document.documentElement.setAttribute("data-theme", theme);
+      localStorage.setItem("theme", theme);
+      btn.setAttribute("aria-label", theme === "dark" ? "Switch to light mode" : "Switch to dark mode");
+    }
+    applyTheme(localStorage.getItem("theme") || "dark");
+    btn.addEventListener("click", () => {
+      applyTheme(document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark");
+    });
+  })();
 
   $("connectBtn").addEventListener("click", async () => {
     try {
