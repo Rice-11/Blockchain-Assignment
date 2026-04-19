@@ -18,11 +18,11 @@ contract RefundContract {
     event Withdrawn(address indexed creator, uint256 amount);
     event GoalReached(uint256 totalRaised);
 
-    constructor(uint256 _goal, uint256 _durationDays) {
+    constructor(uint256 _goal, uint256 _durationDays, address _creator) {
         require(_goal > 0, "Goal must be greater than zero");
         require(_durationDays > 0, "Duration must be at least 1 day");
 
-        creator = payable(msg.sender);
+        creator = payable(_creator);
         goal = _goal;
         deadline = block.timestamp + (_durationDays * 1 days);
     }
@@ -40,6 +40,21 @@ contract RefundContract {
         }
 
         emit Funded(msg.sender, msg.value);
+    }
+
+    function fundFor(address _contributor) external payable {
+        require(getState() == State.Active, "Campaign is not active");
+        require(msg.value > 0, "Must send ETH to fund");
+
+        contributions[_contributor] += msg.value;
+        amountRaised += msg.value;
+
+        if (amountRaised >= goal) {
+            goalMet = true;
+            emit GoalReached(amountRaised);
+        }
+
+        emit Funded(_contributor, msg.value);
     }
 
     // Pull-refund: contributor calls this after campaign fails

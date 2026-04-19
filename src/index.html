@@ -1,121 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chaining of the Block — Dev</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="./css/style.css" />
-    <script>(function(){var t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})()</script>
-  </head>
-  <body>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChainFund — Decentralized Crowdfunding</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #E8EAED;
+    color: #2D3436;
+    -webkit-font-smoothing: antialiased;
+  }
+  #root { height: 100%; }
+  input, select, textarea, button { font-family: 'DM Sans', sans-serif; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #E8EAED; border-radius: 99px; }
+  ::-webkit-scrollbar-thumb:hover { background: #2D3436; }
+</style>
+</head>
+<body>
+<div id="root"></div>
 
-    <header class="topbar">
-      <div class="topbar-brand">
-        <div class="brand-blocks" aria-hidden="true">
-          <span class="bb"></span><span class="bb bb--lit"></span><span class="bb"></span>
-        </div>
-        <span class="brand-name">chaining-of-the-block</span>
-        <span class="brand-sub">/ dev</span>
-      </div>
-      <div class="topbar-right">
-        <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
-          <svg class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <g class="sun-icon">
-              <circle cx="12" cy="12" r="4"/>
-              <line x1="12" y1="2" x2="12" y2="4"/>
-              <line x1="12" y1="20" x2="12" y2="22"/>
-              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-              <line x1="2" y1="12" x2="4" y2="12"/>
-              <line x1="20" y1="12" x2="22" y2="12"/>
-              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-            </g>
-            <g class="moon-icon">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-            </g>
-          </svg>
-        </button>
-        <span id="networkBadge" class="badge badge--offline">not connected</span>
-      </div>
-    </header>
+<script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
 
-    <main class="container">
+<script src="./js/cf-data.js"></script>
+<script src="./js/web3-bridge.js"></script>
 
-      <!-- 01 — Dev setup -->
-      <section class="panel" id="setupPanel">
-        <div class="panel-head">
-          <span class="panel-num">01</span>
-          <span class="panel-title">dev setup</span>
-        </div>
-        <ol class="setup-steps">
-          <li><code>npm run devchain</code> — start local Ganache chain</li>
-          <li><code>npm run compile</code> — compile contracts</li>
-          <li><code>npm run migrate</code> — deploy to local network</li>
-          <li>Point MetaMask to <strong>localhost:8545</strong>, then connect below</li>
-        </ol>
-      </section>
-
-      <div class="chain-node" id="chainNode1" aria-hidden="true">
-        <div class="cn-line"></div>
-        <div class="cn-gem"></div>
-        <div class="cn-line"></div>
-      </div>
-
-      <!-- 02 — Wallet -->
-      <section class="panel" id="walletPanel">
-        <div class="panel-head">
-          <span class="panel-num">02</span>
-          <span class="panel-title">wallet</span>
-          <span id="accountBadge" class="badge badge--offline">disconnected</span>
-        </div>
-        <button id="connectBtn" class="btn btn--primary">connect metamask</button>
-        <p id="account" class="addr-display">—</p>
-      </section>
-
-      <div class="chain-node" id="chainNode2" aria-hidden="true">
-        <div class="cn-line"></div>
-        <div class="cn-gem"></div>
-        <div class="cn-line"></div>
-      </div>
-
-      <!-- 03 — Contract -->
-      <section class="panel" id="contractPanel">
-        <div class="panel-head">
-          <span class="panel-num">03</span>
-          <span class="panel-title">simplestorage.sol</span>
-        </div>
-
-        <div class="value-readout">
-          <div class="vr-meta">
-            <span class="vr-label">stored value</span>
-            <span class="vr-hex" id="valueHex">0x—</span>
-          </div>
-          <div class="vr-number" id="valueDisplay">—</div>
-        </div>
-
-        <div class="input-row">
-          <div class="input-wrap">
-            <span class="input-prefix" aria-hidden="true">›</span>
-            <input id="valueInput" type="number" min="0" value="0" placeholder="uint256" />
-          </div>
-          <button id="setBtn" class="btn btn--accent">set</button>
-          <button id="getBtn" class="btn btn--ghost">read</button>
-        </div>
-      </section>
-
-      <div class="statusbar">
-        <span class="sb-prompt" aria-hidden="true">&gt;_</span>
-        <span class="statusbar-dot" id="statusDot"></span>
-        <span id="status">waiting for wallet connection</span>
-      </div>
-
-    </main>
-
-    <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
-    <script src="./js/app.js"></script>
-  </body>
+<script type="text/babel" src="./js/ba-layout.jsx"></script>
+<script type="text/babel" src="./js/ba-dashboard.jsx"></script>
+<script type="text/babel" src="./js/ba-campaigns.jsx"></script>
+<script type="text/babel" src="./js/ba-my-campaigns.jsx"></script>
+<script type="text/babel" src="./js/ba-my-contributions.jsx"></script>
+<script type="text/babel" src="./js/ba-wallet.jsx"></script>
+<script type="text/babel" src="./js/ba-transactions.jsx"></script>
+<script type="text/babel" src="./js/ba-analytics.jsx"></script>
+<script type="text/babel" src="./js/ba-settings.jsx"></script>
+<script type="text/babel" src="./js/ba-app.jsx"></script>
+</body>
 </html>

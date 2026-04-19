@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "npx serve src",
-    "devchain": "ganache --deterministic",
+    "dev": "npx serve . -l 3000",
+    "devchain": "ganache --deterministic --chain.chainId 1337 --chain.networkId 1337",
     "compile": "truffle compile",
     "migrate": "truffle migrate --network development",
     "test": "truffle test"

@@ -51,11 +51,11 @@ contract RewardsAndHistory {
     //  Constructor
     // ─────────────────────────────────────────────────────────────
 
-    constructor(uint256 _goal, uint256 _duration_in_days) {
+    constructor(uint256 _goal, uint256 _duration_in_days, address _owner) {
         require(_goal > 0, "Goal must be greater than zero");
         require(_duration_in_days > 0, "Duration must be at least 1 day");
 
-        owner    = msg.sender;
+        owner    = _owner;
         goal     = _goal;
         deadline = block.timestamp + (_duration_in_days * 1 days);
     }
@@ -83,6 +83,32 @@ contract RewardsAndHistory {
         emit Funded(msg.sender, msg.value);
     }
 
+    // Bookkeeper — called by Crowdfunding proxy to mirror contributions
+    // tracked in the matching RefundContract vault (ETH is held there).
+    function record(address _contributor, uint256 _amount) external {
+        require(block.timestamp < deadline, "Campaign has ended");
+        require(_amount > 0, "Must record positive amount");
+
+        if (contributions[_contributor] == 0) {
+            contributorList.push(_contributor);
+        }
+
+        contributions[_contributor] += _amount;
+        total_funds += _amount;
+
+        if (total_funds >= goal) {
+            goal_reached = true;
+        }
+
+        emit Funded(_contributor, _amount);
+    }
+
+    // Helper so the frontend can list contributor wallet addresses
+    // for a given campaign (used by "My campaigns" creator view).
+    function getContributors() external view returns (address[] memory) {
+        return contributorList;
+    }
+
     // ─────────────────────────────────────────────────────────────
     //  FUNCTION 1 — distributeRewards
     //
@@ -104,7 +130,7 @@ contract RewardsAndHistory {
     function distributeRewards() external {
         require(msg.sender == owner, "Only owner can distribute rewards");
         require(block.timestamp >= deadline, "Campaign has not ended yet");
-        require(goal_reached, "Goal was not reached — no rewards to distribute");
+        require(goal_reached, "Goal was not reached no rewards to distribute");
         require(contributorList.length > 0, "No contributors to reward");
 
         for (uint256 i = 0; i < contributorList.length; i++) {
